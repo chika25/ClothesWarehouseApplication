@@ -14,11 +14,16 @@ import static org.springframework.boot.autoconfigure.security.servlet.PathReques
 public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        return http
+        http
                 .authorizeHttpRequests()
-                .requestMatchers("/api/managers").authenticated()
+                .requestMatchers(toH2Console()).permitAll()
                 .anyRequest().permitAll()
                 .and()
-                .build();
+                .headers()
+                .frameOptions().sameOrigin()  // Allow loading in frames from the same origin
+                .and()
+                .csrf().disable();
+
+        return http.build();
     }
 }
