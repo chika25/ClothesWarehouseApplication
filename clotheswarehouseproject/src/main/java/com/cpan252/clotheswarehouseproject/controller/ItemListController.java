@@ -1,13 +1,11 @@
 package com.cpan252.clotheswarehouseproject.controller;
 
 
+import com.cpan252.clotheswarehouseproject.model.DistributionCenter;
 import com.cpan252.clotheswarehouseproject.model.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,9 +15,17 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import com.cpan252.clotheswarehouseproject.repository.ItemRepository;
+import com.cpan252.clotheswarehouseproject.model.Item;
+import com.cpan252.clotheswarehouseproject.repository.DistributionCenterRepository;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import com.cpan252.clotheswarehouseproject.service.DistributionCenterService;
+import org.thymeleaf.util.StringUtils;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Controller
 @Slf4j
@@ -29,9 +35,17 @@ public class ItemListController {
     @Autowired
     private ItemRepository itemRepository;
 
-    public ItemListController(ItemRepository itemRepository) {
+    @Autowired
+    private DistributionCenterRepository distributionCenterRepository;
+
+    @Autowired
+    private DistributionCenterService distributionCenterService;
+
+    public ItemListController(ItemRepository itemRepository, DistributionCenterRepository distributionCenterRepository) {
         this.itemRepository = itemRepository;
+        this.distributionCenterRepository =distributionCenterRepository;
     }
+
     @GetMapping
     public String itemlist() {
         return "itemList";
@@ -44,7 +58,20 @@ public class ItemListController {
         String username = userDetails.getUsername();
 
         var itemPage = itemRepository.findAll(PageRequest.of(0, PAGE_SIZE));
+        var distributionCenters = distributionCenterRepository.findAll();
+        var allItems = itemRepository.findAll();
 
+        Set<String> processedBrands = new HashSet<>();
+
+        // Filter out duplicate brands
+        List<Item> uniqueBrands = allItems.stream()
+                .filter(item -> item.getBrand() != null && processedBrands.add(item.getBrand()))
+                .collect(Collectors.toList());
+
+
+        model.addAttribute("allItems", allItems);
+        model.addAttribute("uniqueBrands", uniqueBrands);
+        model.addAttribute("distributionCenters", distributionCenters);
         model.addAttribute("username", username);
         model.addAttribute("items", itemPage);
         model.addAttribute("currentPage", itemPage.getNumber());
@@ -62,7 +89,6 @@ public class ItemListController {
     public String switchPage(Model model,
                              @RequestParam("pageToSwitch") Optional<Integer> pageToSwitch) {
         var page = pageToSwitch.orElse(0);
-//        var currentPath = request.getRequestURL().toString();
 
         var totalPages = (int) model.getAttribute("totalPages");
         if (page < 0 || page >= totalPages) {
@@ -75,4 +101,35 @@ public class ItemListController {
         return "itemList";
 
     }
+
+    @PostMapping("/addDistributionCenter")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String addDistributionCenter(@ModelAttribute("name") String name,
+                                        @ModelAttribute("brand") String brand,
+                                        @ModelAttribute("distributionName") String distributionName,
+                                        @AuthenticationPrincipal User user) {
+        List<Item> itemsToAdd;
+        // Check if both name and brand are empty
+        if (StringUtils.isEmpty(name) && StringUtils.isEmpty(brand)) {
+            return "redirect:/itemList";
+        } else {
+            // Use your repository method to search by name and/or brand
+            if (StringUtils.isEmpty(name)) {
+                // Only brand is chosen
+                itemsToAdd = itemRepository.findByBrand(brand);
+            } else if (StringUtils.isEmpty(brand)) {
+                // Only name is chosen
+                itemsToAdd = itemRepository.findByName(name);
+            } else {
+                // Both name and brand are chosen
+                itemsToAdd = itemRepository.findByNameAndBrand(name, brand);
+            }
+        }
+        DistributionCenter centerId = distributionCenterRepository.findByName(distributionName);
+        // Add items to the specified distribution center
+        distributionCenterService.addItemToDistributionCenter(centerId.getId(), itemsToAdd);
+        return "redirect:/itemList";
+    }
+
+
 }

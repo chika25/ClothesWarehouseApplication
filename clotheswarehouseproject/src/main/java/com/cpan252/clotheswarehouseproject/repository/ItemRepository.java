@@ -10,4 +10,5 @@ import java.util.List;
 public interface ItemRepository extends JpaRepository<Item, Long> {
     List<Item> findByBrand(String brand);
     List<Item> findByName(String name);
+    List<Item> findByNameAndBrand(String name, String brand);
 }

@@ -8,6 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -22,13 +24,30 @@ public class DistributionCenter {
     @NotBlank
     private String name;
 
-
-//    @ElementCollection
-    @OneToMany(mappedBy = "distributionCenter", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "distributionCenter", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Item> itemsAvailable;
+
     @NotNull
     private double latitude;
 
     @NotNull
     private double longitude;
+
+    public List<Item> getItemsAvailable(){return this.itemsAvailable;}
+
+    public void setItemsAvailable(List<Item> itemsAvailable) {
+        this.itemsAvailable = itemsAvailable;
+        if (itemsAvailable != null) {
+            for (Item item : itemsAvailable) {
+                item.setDistributionCenter(this);
+            }
+        }
+    }
+    public Long getId() {
+        return id;
+    }
+    @Override
+    public String toString() {
+        return "DistributionCenter{id=" + id + ", name='" + name + "'}";
+    }
 }

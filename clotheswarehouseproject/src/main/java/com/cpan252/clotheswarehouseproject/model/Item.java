@@ -12,8 +12,6 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 @Data
 @Builder
@@ -44,4 +42,20 @@ public class Item {
     @ManyToOne(optional = true)
     @JoinColumn(name = "distribution_center_id")
     private DistributionCenter distributionCenter;
+
+    public void setDistributionCenter(DistributionCenter distributionCenter) {
+        this.distributionCenter = distributionCenter;
+        if (distributionCenter != null) {
+            distributionCenter.getItemsAvailable().add(this);
+        }
+    }
+
+    public String getBrand(){
+        return brand;
+    }
+    @Override
+    public String toString() {
+        return "Item{id=" + id + ", name='" + name + "', brand='" + brand + "', year_of_creation=" + year_of_creation +
+                ", price=" + price + ", createdAt=" + createdAt + ", quantity=" + quantity + '}';
+    }
 }
