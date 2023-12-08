@@ -53,9 +53,10 @@ public class SecurityConfig {
                 // H2-Console
                 .and()
                 .headers()
-                .frameOptions();
-
-        http.csrf().disable();
+                .frameOptions().sameOrigin()  // Allow loading in frames from the same origin
+                .and()
+                .csrf().disable();
         return http.build();
     }
 }
+
