@@ -79,7 +79,7 @@ public class ItemListController {
     }
     @PostMapping("/deleteAllItems")
     @PreAuthorize("hasRole('ADMIN')")
-    public String processFightersDeletion(@AuthenticationPrincipal User user, RedirectAttributes redirectAttributes) {
+    public String processAllItemsDeletion(@AuthenticationPrincipal User user, RedirectAttributes redirectAttributes) {
         itemRepository.deleteAll();
         redirectAttributes.addFlashAttribute("deletionCompleted", true);
         return "redirect:/itemList";
@@ -131,5 +131,29 @@ public class ItemListController {
         return "redirect:/itemList";
     }
 
+    @PostMapping("/deleteItems")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String processItemsDeletion(@ModelAttribute("name") String name,
+                                       @ModelAttribute("brand") String brand,
+                                       @AuthenticationPrincipal User user) {
+        List<Item> itemsToDelete;
+        if (StringUtils.isEmpty(name) && StringUtils.isEmpty(brand)) {
+            return "redirect:/itemList";
+        } else {
+            // Use your repository method to search by name and/or brand
+            if (StringUtils.isEmpty(name)) {
+                // Only brand is chosen
+                itemsToDelete = itemRepository.findByBrand(brand);
+            } else if (StringUtils.isEmpty(brand)) {
+                // Only name is chosen
+                itemsToDelete = itemRepository.findByName(name);
+            } else {
+                // Both name and brand are chosen
+                itemsToDelete = itemRepository.findByNameAndBrand(name, brand);
+            }
+        }
+        itemRepository.deleteAll(itemsToDelete);
+        return "redirect:/itemList";
+    }
 
 }

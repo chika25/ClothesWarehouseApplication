@@ -16,67 +16,30 @@
 <div class="d-flex flex-row mb-3">
     <div
             class="card ms-3 me-3"
-            th:each="item: ${items}"
+            th:each="center: ${allCenters}"
             style="width: 18rem"
     >
         <div class="card-body">
-            <h5 class="card-title" th:text="${item.name}" />
+            <h5 class="card-title" th:text="${center.name}" />
             <h6
                     class="card-subtitle mb-2 text-muted"
-                    th:text="|Brand Name: ${item.brand}|"
+                    th:text="|Latitude: ${center.latitude}|"
             />
             <h6
                     class="card-subtitle mb-2 text-muted"
-                    th:text="|Year: ${item.year_of_creation}|"
+                    th:text="|Longitude: ${center.longitude}|"
             />
-            <h6
-                    class="card-subtitle mb-2 text-muted"
-                    th:text="|Price: ${item.price}|"
-            />
-            <h6
-                    class="card-subtitle mb-2 text-muted"
-                    th:text="|Quantity: ${item.quantity}|"
-            />
+            <h6 class="card-subtitle mb-2 text-muted">Associated Items:</h6>
+            <ul>
+                <li th:each="item : ${center.itemsAvailable}" th:text="${item.name} + ' - ' + ${item.brand}" />
+            </ul>
         </div>
     </div>
 </div>
-<div
-        class="d-flex flex-column bd-highlight justify-content-center align-items-center w-75 ms-5"
->
-    <div th:if="${username=='admin'}">
-        <form method="post" th:action="@{/itemList/deleteAllItems}">
-            <div th:if="${deletionCompleted}"><p style="color: green;">Items deleted</p></div>
-            <button
-                    class="btn btn-danger mt-5"
-            >
-                Delete All Items
-            </button>
-        </form>
-    </div>
-    <div th:if="${username=='admin'}">
-        <a class="btn btn-primary mt-5" th:href="@{/addItem}">
-            Add Items
-        </a>
-    </div>
-    <div th:if="${username=='admin'}">
-        <a class="btn btn-primary mt-5" th:href="@{/adminpage}">
-            Go to admin page
-        </a>
-    </div>
-    <ul class="pagination mt-5">
-        <li class="page-item">
-            <a class="page-link" th:href="@{/itemList/switchPage(pageToSwitch=${currentPage - 1})}">Previous</a>
-        </li>
-        <li
-                class="page-item"
-                th:classappend="${currentPage + 1 eq page} ? 'active' : 'not'"
-                th:each="page: ${#numbers.sequence(1, totalPages)}"
-        >
-            <a class="page-link" th:text="${page}" th:href="@{/itemList/switchPage(pageToSwitch=${page - 1})}" />
-        </li>
-        <li class="page-item"><a class="page-link" th:href="@{/itemList/switchPage(pageToSwitch=${currentPage + 1})}">Next</a></li>
-    </ul>
-    </nav>
+<div th:if="${username=='admin'}">
+    <a class="btn btn-primary mt-5" th:href="@{/adminpage}">
+        Go to admin page
+    </a>
 </div>
 </body>
 </html>

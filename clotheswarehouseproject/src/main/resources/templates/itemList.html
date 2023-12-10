@@ -58,17 +58,18 @@
                 Delete All Items
             </button>
         </form>
-    </div>
-    <div th:if="${username=='admin'}">
+
         <a class="btn btn-primary mt-5" th:href="@{/addItem}">
             Add Items
         </a>
-    </div>
-    <div th:if="${username=='admin'}">
+
         <a class="btn btn-primary mt-5" th:href="@{/adminpage}">
             Go to admin page
         </a>
     </div>
+    <a class="btn btn-primary mt-5" th:href="@{/distributionCenterList}">
+        See distribution centers
+    </a>
     <ul class="pagination mt-5">
         <li class="page-item">
             <a class="page-link" th:href="@{/itemList/switchPage(pageToSwitch=${currentPage - 1})}">Previous</a>
@@ -83,42 +84,49 @@
         <li class="page-item"><a class="page-link" th:href="@{/itemList/switchPage(pageToSwitch=${currentPage + 1})}">Next</a></li>
     </ul>
 
-    <div class="mt-5">
-        <p>Add item to a distribution center</p>
-        <form th:action="@{/itemList/addDistributionCenter}" method="post">
-            <!-- Include dropdowns for name, brand, and distribution center selection -->
-            <label for="name">Select an Item by Name:</label>
-            <select id="name" name="name">
-                <option value="">Choose Name</option>
-                <option th:each="item : ${allItems}" th:value="${item.name}" th:text="${item.name}"></option>
-            </select>
+    <div th:if="${username=='admin'}">
+        <div class="mt-5">
+            <h6>Add item to a distribution center</h6>
+            <form th:action="@{/itemList/addDistributionCenter}" method="post">
+                <!-- Include dropdowns for name, brand, and distribution center selection -->
+                <label for="name">Select an Item by Name:</label>
+                <select id="name" name="name">
+                    <option value="">Choose Name</option>
+                    <option th:each="item : ${allItems}" th:value="${item.name}" th:text="${item.name}"></option>
+                </select>
+                <br>
+                <label for="brand">Select an Item by Brand:</label>
+                <select id="brand" name="brand">
+                    <option value="">Choose Brand</option>
+                    <option th:each="brand : ${uniqueBrands}" th:value="${brand.brand}" th:text="${brand.brand}"></option>
+                </select>
+                <br>
+                <label for="distributionName">Select a distribution center:</label>
+                <select id="distributionName" name="distributionName">
+                    <option th:each="center : ${distributionCenters}" th:value="${center.name}" th:text="${center.name}"></option>
+                </select>
 
-            <label for="brand">Select an Item by Brand:</label>
-            <select id="brand" name="brand">
-                <option value="">Choose Brand</option>
-                <option th:each="brand : ${uniqueBrands}" th:value="${brand.brand}" th:text="${brand.brand}"></option>
-            </select>
-
-            <label for="distributionName">Select a distribution center:</label>
-            <select id="distributionName" name="distributionName">
-                <option th:each="center : ${distributionCenters}" th:value="${center.name}" th:text="${center.name}"></option>
-            </select>
-
-            <button type="submit">Add item to a distribution center</button>
-        </form>
+                <button class="btn btn-primary mt-5" type="submit">Add item to a distribution center</button>
+            </form>
 
 
-        <!--        <p>Delete an item</p>-->
-<!--        <form action="@{/your/form/action}" method="post">-->
-<!--            <label for="deleteItemDropdown">Select an Item:</label>-->
-<!--            <select id="deleteItemDropdown" name="itemId">-->
-<!--                <option th:each="item : ${allItems}" th:value="${item.id}" th:text="${item.name}"></option>-->
-<!--            </select>-->
-<!--            <select id="deleteBrandDropdown" name="brandId">-->
-<!--                <option th:each="item : ${allItems}" th:value="${item.id}" th:text="${item.brand}"></option>-->
-<!--            </select>-->
-<!--            <button type="submit">Delete</button>-->
-<!--        </form>-->
+            <h6>Delete items</h6>
+            <form th:action="@{/itemList/deleteItems}" method="post">
+                <label for="deleteItemDropdown">Select an Item:</label>
+                <select id="deleteItemDropdown" name="name">
+                    <option value="">Choose Name</option>
+                    <option th:each="item : ${allItems}" th:value="${item.name}" th:text="${item.name}"></option>
+                </select>
+                <br>
+                <label for="deleteBrandDropdown">Select a brand:</label>
+                <select id="deleteBrandDropdown" name="brand">
+                    <option value="">Choose Brand</option>
+                    <option th:each="brand : ${uniqueBrands}" th:value="${brand.brand}" th:text="${brand.brand}"></option>
+                </select>
+
+                <button class="btn btn-danger mt-5" type="submit">Delete</button>
+            </form>
+        </div>
     </div>
 </div>
 </body>
