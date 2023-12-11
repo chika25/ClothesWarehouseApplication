@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+            crossorigin="anonymous"
+    />
+    <title>Distribution Center List</title>
+</head>
+<body>
+<div class="d-flex flex-row mb-3">
+    <div
+            class="card ms-3 me-3"
+            th:each="center: ${centers}"
+            style="width: 18rem"
+    >
+        <div class="card-body">
+            <h5 class="card-title" th:text="${center.name}" />
+            <h6
+                    class="card-subtitle mb-2 text-muted"
+                    th:text="|Latitude: ${center.latitude}|"
+            />
+            <h6
+                    class="card-subtitle mb-2 text-muted"
+                    th:text="|Longitude: ${center.longitude}|"
+            />
+            <div th:each="item : ${center.itemsAvailable}">
+                <p th:text="${item.name}"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

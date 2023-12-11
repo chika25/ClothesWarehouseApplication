@@ -18,6 +18,7 @@ public class DistributioncentremanagersapiApplication {
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
+
 	@Bean
 	public CommandLineRunner createInitialManagers(ManagerRepository managerRepository, PasswordEncoder passwordEncoder) {
 		return args -> {
