@@ -1,5 +1,6 @@
 package com.cpan252.clotheswarehouseproject.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Builder;
 
@@ -39,16 +40,29 @@ public class Item {
 
     @Min(1)
     private int quantity;
+
+    @JsonBackReference
     @ManyToOne(optional = true)
     @JoinColumn(name = "distribution_center_id")
     private DistributionCenter distributionCenter;
+
+//    public void setDistributionCenter(DistributionCenter distributionCenter) {
+//        this.distributionCenter = distributionCenter;
+//        if (distributionCenter != null) {
+//            distributionCenter.getItemsAvailable().add(this);
+//        }
+//    }
 
     public void setDistributionCenter(DistributionCenter distributionCenter) {
         this.distributionCenter = distributionCenter;
         if (distributionCenter != null) {
             distributionCenter.getItemsAvailable().add(this);
+            if (!distributionCenter.getItemsAvailable().contains(this)) {
+                distributionCenter.getItemsAvailable().add(this);
+            }
         }
     }
+
 
     public String getBrand(){
         return brand;

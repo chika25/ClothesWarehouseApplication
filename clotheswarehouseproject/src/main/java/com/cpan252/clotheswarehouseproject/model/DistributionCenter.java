@@ -1,6 +1,9 @@
 package com.cpan252.clotheswarehouseproject.model;
 
 import com.cpan252.clotheswarehouseproject.model.Item;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -17,6 +20,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class DistributionCenter {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,6 +28,7 @@ public class DistributionCenter {
     @NotBlank
     private String name;
 
+    @JsonManagedReference
     @OneToMany(mappedBy = "distributionCenter", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Item> itemsAvailable;
 
@@ -45,6 +50,13 @@ public class DistributionCenter {
     }
     public Long getId() {
         return id;
+    }
+
+    public Item findItemById(Long itemId) {
+        return itemsAvailable.stream()
+                .filter(item -> item.getId().equals(itemId))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Item not found"));
     }
     @Override
     public String toString() {
